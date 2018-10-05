@@ -4,8 +4,8 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build",
             "type": "process",
+            "label": "bootimage build",
             "command": "bootimage",
             "args": [
                 "build"
@@ -19,7 +19,7 @@
             }
         },
         {
-            "type": "cargo",
+            "type": "process",
             "label": "cargo test",
             "command": "cargo",
             "args": [
