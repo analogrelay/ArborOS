@@ -2,6 +2,8 @@
 
 Just playin' with building an OS in Rust.
 
+Based on https://os.phil-opp.com/
+
 ## Prereqs:
 
 1. QEMU ([Windows](https://qemu.weilnetz.de/w64/), Linux/macOS use package manager or Homebrew)
