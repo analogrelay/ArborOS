@@ -1,7 +1,6 @@
 use core::fmt;
 
 use spin::Mutex;
-use volatile::Volatile;
 
 use self::color::ColorCode;
 use self::buffer::Buffer;
