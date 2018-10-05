@@ -1,3 +1,2 @@
 {
-    "rust.target": "${workspace_folder}/x86_64-arbor_os.json"
 }
