@@ -1,46 +1,43 @@
 // Disable std library (we're freestanding) and the default main method
 #![no_std]
-#![cfg_attr(not(test), no_main)]
+#![no_main]
 
 // Allow dead code because we write helpers before we use them sometimes :)
 #![allow(dead_code)]
 
-// Silence warnings in tests
-#![cfg_attr(test, allow(unused_macros, unused_imports))]
+// Enable custom test runner
+#![feature(custom_test_frameworks)]
+#![test_runner(arbor_os::test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
-// Bring in the std library in tests
-#[cfg(test)]
-extern crate std;
-
-// Dependencies
-extern crate bootloader_precompiled;
-extern crate volatile;
-extern crate spin;
-
-#[macro_use]
-extern crate lazy_static;
-
-// Test-only dependencies
-#[cfg(test)]
-extern crate array_init;
+extern crate arbor_os;
 
 use core::panic::PanicInfo;
+use arbor_os::println;
 
-#[macro_use]
-mod vga;
+#[no_mangle]
+pub extern "C" fn _start() -> ! {
+    println!("Hello world!");
 
-/// This function is called on panic.
+    #[cfg(test)]
+    test_main();
+
+    loop {}
+}
+
+/// This function is called on panic in the real OS.
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    vga::WRITER.lock().set_fg(vga::Color::LightRed);
-    vga::WRITER.lock().set_bg(vga::Color::Black);
+    arbor_os::vga::WRITER.lock().set_fg(arbor_os::vga::Color::LightRed);
+    arbor_os::vga::WRITER.lock().set_bg(arbor_os::vga::Color::Black);
     println!("{}", info);
     loop {}
 }
 
-#[cfg(not(test))]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    panic!("Kernel not yet implemented");
+/// This function is called on panic in tests.
+#[cfg(test)]
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    arbor_os::test_panic_handler(info)
 }

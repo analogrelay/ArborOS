@@ -6,7 +6,9 @@ pub struct Writer {
     column_position: usize,
     row_position: usize,
     color_code: ColorCode,
-    buffer: &'static mut Buffer,
+
+    // Visible in crate for testing.
+    pub(crate) buffer: &'static mut Buffer,
 }
 
 impl Writer {
@@ -109,194 +111,194 @@ impl fmt::Write for Writer {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use std::format;
-    use std::vec::Vec;
+// #[cfg(test)]
+// mod test {
+//     use std::format;
+//     use std::vec::Vec;
 
-    use super::*;
-    use volatile::Volatile;
+//     use super::*;
+//     use volatile::Volatile;
 
-    #[test]
-    fn write_byte_sets_character_in_next_buffer_slot() {
-        let mut writer = construct_writer();
-        writer.write_byte(b'X');
-        writer.write_byte(b'Y');
+//     #[test]
+//     fn write_byte_sets_character_in_next_buffer_slot() {
+//         let mut writer = construct_writer();
+//         writer.write_byte(b'X');
+//         writer.write_byte(b'Y');
 
-        for (i, row) in writer.buffer.iter_rows().enumerate() {
-            if i == 0 {
-                assert_eq!("XY", row.trim());
-            } else {
-                assert_eq!("", row.trim());
-            }
-        }
-    }
+//         for (i, row) in writer.buffer.iter_rows().enumerate() {
+//             if i == 0 {
+//                 assert_eq!("XY", row.trim());
+//             } else {
+//                 assert_eq!("", row.trim());
+//             }
+//         }
+//     }
 
-    #[test]
-    fn write_macro_can_write_to_vga_buffer() {
-        use core::fmt::Write;
+//     #[test]
+//     fn write_macro_can_write_to_vga_buffer() {
+//         use core::fmt::Write;
 
-        let mut writer = construct_writer();
-        writeln!(&mut writer, "a").unwrap();
-        writeln!(&mut writer, "b{}", "c").unwrap();
+//         let mut writer = construct_writer();
+//         writeln!(&mut writer, "a").unwrap();
+//         writeln!(&mut writer, "b{}", "c").unwrap();
 
-        for (i, row) in writer.buffer.iter_rows().enumerate() {
-            if i == 0 {
-                assert_eq!("a", row.trim());
-            } else if i == 1 {
-                assert_eq!("bc", row.trim());
-            } else {
-                assert_eq!("", row.trim());
-            }
-        }
-    }
+//         for (i, row) in writer.buffer.iter_rows().enumerate() {
+//             if i == 0 {
+//                 assert_eq!("a", row.trim());
+//             } else if i == 1 {
+//                 assert_eq!("bc", row.trim());
+//             } else {
+//                 assert_eq!("", row.trim());
+//             }
+//         }
+//     }
 
-    #[test]
-    fn clear_sets_buffer_to_all_blanks() {
-        use core::fmt::Write;
+//     #[test]
+//     fn clear_sets_buffer_to_all_blanks() {
+//         use core::fmt::Write;
 
-        let mut writer = construct_writer();
+//         let mut writer = construct_writer();
 
-        // Fill the buffer
-        for i in 0..BUFFER_HEIGHT {
-            writeln!(&mut writer, "Line {}", i);
-        }
+//         // Fill the buffer
+//         for i in 0..BUFFER_HEIGHT {
+//             writeln!(&mut writer, "Line {}", i);
+//         }
 
-        // Clear it
-        writer.clear();
+//         // Clear it
+//         writer.clear();
 
-        // Verify the rows
-        for row in writer.buffer.iter_rows() {
-            assert_eq!("", row.trim());
-        }
-    }
+//         // Verify the rows
+//         for row in writer.buffer.iter_rows() {
+//             assert_eq!("", row.trim());
+//         }
+//     }
 
-    #[test]
-    fn buffer_scrolls_when_filled() {
-        use core::fmt::Write;
+//     #[test]
+//     fn buffer_scrolls_when_filled() {
+//         use core::fmt::Write;
 
-        let mut writer = construct_writer();
+//         let mut writer = construct_writer();
 
-        // Fill the buffer
-        for i in 0..BUFFER_HEIGHT {
-            writeln!(&mut writer, "Line {}", i);
-        }
+//         // Fill the buffer
+//         for i in 0..BUFFER_HEIGHT {
+//             writeln!(&mut writer, "Line {}", i);
+//         }
 
-        // Write two more lines
-        writeln!(&mut writer, "Extra Line 1");
-        writeln!(&mut writer, "Extra Line 2");
+//         // Write two more lines
+//         writeln!(&mut writer, "Extra Line 1");
+//         writeln!(&mut writer, "Extra Line 2");
 
-        // Verify the rows
-        for (i, row) in writer.buffer.iter_rows().enumerate() {
-            if i == BUFFER_HEIGHT - 3 {
-                assert_eq!("Extra Line 1", row.trim());
-            } else if i == BUFFER_HEIGHT - 2 {
-                assert_eq!("Extra Line 2", row.trim());
-            } else if i == BUFFER_HEIGHT - 1 {
-                assert_eq!("", row.trim());
-            } else {
-                assert_eq!(format!("Line {}", i + 3), row.trim());
-            }
-        }
-    }
+//         // Verify the rows
+//         for (i, row) in writer.buffer.iter_rows().enumerate() {
+//             if i == BUFFER_HEIGHT - 3 {
+//                 assert_eq!("Extra Line 1", row.trim());
+//             } else if i == BUFFER_HEIGHT - 2 {
+//                 assert_eq!("Extra Line 2", row.trim());
+//             } else if i == BUFFER_HEIGHT - 1 {
+//                 assert_eq!("", row.trim());
+//             } else {
+//                 assert_eq!(format!("Line {}", i + 3), row.trim());
+//             }
+//         }
+//     }
 
-    #[test]
-    fn clear_resets_cursor_position() {
-        use core::fmt::Write;
+//     #[test]
+//     fn clear_resets_cursor_position() {
+//         use core::fmt::Write;
 
-        let mut writer = construct_writer();
+//         let mut writer = construct_writer();
 
-        // Fill the buffer
-        for i in 0..BUFFER_HEIGHT {
-            writeln!(&mut writer, "Line {}", i);
-        }
+//         // Fill the buffer
+//         for i in 0..BUFFER_HEIGHT {
+//             writeln!(&mut writer, "Line {}", i);
+//         }
 
-        // Clear it
-        writer.clear();
+//         // Clear it
+//         writer.clear();
 
-        // Write a new line
-        writeln!(&mut writer, "Line 1");
+//         // Write a new line
+//         writeln!(&mut writer, "Line 1");
 
-        // Verify the rows
-        for (i, row) in writer.buffer.iter_rows().enumerate() {
-            if i == 0 {
-                assert_eq!("Line 1", row.trim());
-            } else {
-                assert_eq!("", row.trim());
-            }
-        }
-    }
+//         // Verify the rows
+//         for (i, row) in writer.buffer.iter_rows().enumerate() {
+//             if i == 0 {
+//                 assert_eq!("Line 1", row.trim());
+//             } else {
+//                 assert_eq!("", row.trim());
+//             }
+//         }
+//     }
 
-    #[test]
-    fn write_byte_includes_current_colors() {
-        use core::fmt::Write;
+//     #[test]
+//     fn write_byte_includes_current_colors() {
+//         use core::fmt::Write;
 
-        let mut writer = construct_writer();
-        writer.set_fg(Color::Yellow);
-        writer.set_bg(Color::LightCyan);
-        writer.write_byte(b'X');
-        writer.set_fg(Color::Red);
-        writer.set_bg(Color::Magenta);
-        writer.write_byte(b'Y');
+//         let mut writer = construct_writer();
+//         writer.set_fg(Color::Yellow);
+//         writer.set_bg(Color::LightCyan);
+//         writer.write_byte(b'X');
+//         writer.set_fg(Color::Red);
+//         writer.set_bg(Color::Magenta);
+//         writer.write_byte(b'Y');
 
-        assert_eq!(Color::Yellow, writer.buffer[(0, 0)].read().color_code.fg());
-        assert_eq!(
-            Color::LightCyan,
-            writer.buffer[(0, 0)].read().color_code.bg()
-        );
-        assert_eq!(Color::Red, writer.buffer[(0, 1)].read().color_code.fg());
-        assert_eq!(
-            Color::Magenta,
-            writer.buffer[(0, 1)].read().color_code.bg()
-        );
-    }
+//         assert_eq!(Color::Yellow, writer.buffer[(0, 0)].read().color_code.fg());
+//         assert_eq!(
+//             Color::LightCyan,
+//             writer.buffer[(0, 0)].read().color_code.bg()
+//         );
+//         assert_eq!(Color::Red, writer.buffer[(0, 1)].read().color_code.fg());
+//         assert_eq!(
+//             Color::Magenta,
+//             writer.buffer[(0, 1)].read().color_code.bg()
+//         );
+//     }
 
-    #[test]
-    fn color_values_scroll() {
-        use core::fmt::Write;
+//     #[test]
+//     fn color_values_scroll() {
+//         use core::fmt::Write;
 
-        let mut writer = construct_writer();
-        writer.set_fg(Color::Yellow);
-        writer.set_bg(Color::White);
+//         let mut writer = construct_writer();
+//         writer.set_fg(Color::Yellow);
+//         writer.set_bg(Color::White);
 
-        // Fill the buffer
-        for i in 0..BUFFER_HEIGHT {
-            writeln!(&mut writer, "Line {}", i);
-        }
+//         // Fill the buffer
+//         for i in 0..BUFFER_HEIGHT {
+//             writeln!(&mut writer, "Line {}", i);
+//         }
 
-        // Change the colors
-        writer.set_fg(Color::Red);
-        writer.set_bg(Color::Blue);
+//         // Change the colors
+//         writer.set_fg(Color::Red);
+//         writer.set_bg(Color::Blue);
 
-        // Write another lines
-        writeln!(&mut writer, "1");
-        writeln!(&mut writer, "2");
+//         // Write another lines
+//         writeln!(&mut writer, "1");
+//         writeln!(&mut writer, "2");
 
-        // Check the color of the new lines
-        assert_eq!(Color::Red, writer.buffer[BUFFER_HEIGHT - 1][0].read().color_code.fg());
-        assert_eq!(Color::Blue, writer.buffer[BUFFER_HEIGHT - 1][0].read().color_code.bg());
-        assert_eq!(Color::Red, writer.buffer[BUFFER_HEIGHT - 2][0].read().color_code.fg());
-        assert_eq!(Color::Blue, writer.buffer[BUFFER_HEIGHT - 2][0].read().color_code.bg());
+//         // Check the color of the new lines
+//         assert_eq!(Color::Red, writer.buffer[BUFFER_HEIGHT - 1][0].read().color_code.fg());
+//         assert_eq!(Color::Blue, writer.buffer[BUFFER_HEIGHT - 1][0].read().color_code.bg());
+//         assert_eq!(Color::Red, writer.buffer[BUFFER_HEIGHT - 2][0].read().color_code.fg());
+//         assert_eq!(Color::Blue, writer.buffer[BUFFER_HEIGHT - 2][0].read().color_code.bg());
 
-        // Check the color of the old lines
-        assert_eq!(Color::Yellow, writer.buffer[0][0].read().color_code.fg());
-        assert_eq!(Color::White, writer.buffer[0][0].read().color_code.bg());
-    }
+//         // Check the color of the old lines
+//         assert_eq!(Color::Yellow, writer.buffer[0][0].read().color_code.fg());
+//         assert_eq!(Color::White, writer.buffer[0][0].read().color_code.bg());
+//     }
 
-    fn construct_writer() -> Writer {
-        use std::boxed::Box;
+//     fn construct_writer() -> Writer {
+//         use std::boxed::Box;
 
-        Writer::new(
-            Color::Blue,
-            Color::Magenta,
-            Box::leak(Box::new(Buffer::new(empty_char()))),
-        )
-    }
+//         Writer::new(
+//             Color::Blue,
+//             Color::Magenta,
+//             Box::leak(Box::new(Buffer::new(empty_char()))),
+//         )
+//     }
 
-    fn empty_char() -> ScreenChar {
-        ScreenChar {
-            ascii_character: b' ',
-            color_code: ColorCode::new(Color::Green, Color::Brown),
-        }
-    }
-}
+//     fn empty_char() -> ScreenChar {
+//         ScreenChar {
+//             ascii_character: b' ',
+//             color_code: ColorCode::new(Color::Green, Color::Brown),
+//         }
+//     }
+// }
