@@ -10,8 +10,6 @@
 #![test_runner(arbor_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-extern crate arbor_os;
-
 use core::panic::PanicInfo;
 use arbor_os::println;
 

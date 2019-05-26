@@ -1,6 +1,6 @@
 use core::fmt;
 
-use vga::{Buffer, Color, ColorCode, ScreenChar, BUFFER_HEIGHT, BUFFER_WIDTH};
+use crate::vga::{Buffer, Color, ColorCode, ScreenChar, BUFFER_HEIGHT, BUFFER_WIDTH};
 
 pub struct Writer {
     column_position: usize,

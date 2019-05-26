@@ -49,7 +49,7 @@
             "label": "test",
             "command": "cargo",
             "args": [
-                "test"
+                "xtest"
             ],
             "problemMatcher": [
                 "$rustc"
