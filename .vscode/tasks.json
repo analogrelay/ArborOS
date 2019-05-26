@@ -5,7 +5,7 @@
     "tasks": [
         {
             "type": "process",
-            "label": "bootimage build",
+            "label": "build",
             "command": "bootimage",
             "args": [
                 "build"
@@ -20,7 +20,33 @@
         },
         {
             "type": "process",
-            "label": "cargo test",
+            "label": "run",
+            "command": "bootimage",
+            "args": [
+                "run"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "process",
+            "label": "start-debugging",
+            "command": "bootimage",
+            "args": [
+                "run",
+                "--",
+                "-s",
+                "-S"
+            ],
+            "isBackground": true,
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "process",
+            "label": "test",
             "command": "cargo",
             "args": [
                 "test"

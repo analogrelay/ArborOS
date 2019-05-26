@@ -6,9 +6,10 @@ Based on https://os.phil-opp.com/
 
 ## Prereqs:
 
-1. QEMU ([Windows](https://qemu.weilnetz.de/w64/), Linux/macOS use package manager or Homebrew)
-2. [rustup](https://rustup.rs/)
-3. Run `scripts/install-prereqs.ps1` (`.sh` coming) to initialize other prereqs.
+1. Linux. On Windows, WSL is suported. On macOS, try Docker?
+1. QEMU
+1. [rustup](https://rustup.rs/)
+1. Run `scripts/install-prereqs.sh`
 
 ## Building
 
