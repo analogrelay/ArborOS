@@ -1,6 +1,7 @@
 use core::fmt;
 
 use spin::Mutex;
+use lazy_static::lazy_static;
 
 use self::color::ColorCode;
 use self::buffer::Buffer;

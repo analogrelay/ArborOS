@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]
-#![test_runner(arbor_os::test_runner)]
+#![test_runner(arbor_os::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 extern crate arbor_os;
@@ -30,5 +30,5 @@ fn test_println() {
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    arbor_os::test_panic_handler(info)
+    arbor_os::test::test_panic_handler(info)
 }

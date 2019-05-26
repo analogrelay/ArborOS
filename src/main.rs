@@ -7,7 +7,7 @@
 
 // Enable custom test runner
 #![feature(custom_test_frameworks)]
-#![test_runner(arbor_os::test_runner)]
+#![test_runner(arbor_os::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
@@ -17,9 +17,17 @@ use arbor_os::println;
 pub extern "C" fn _start() -> ! {
     println!("Hello world!");
 
+    // Initialize the core OS
+    arbor_os::init();
+
+    // Trigger a breakpoint exception
+    x86_64::instructions::interrupts::int3();
+
+    // Launch test (when built as a test)
     #[cfg(test)]
     test_main();
 
+    println!("It did not crash");
     loop {}
 }
 
@@ -37,5 +45,5 @@ fn panic(info: &PanicInfo) -> ! {
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    arbor_os::test_panic_handler(info)
+    arbor_os::test::test_panic_handler(info)
 }

@@ -10,6 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/target/x86_64-arbor_os/debug/arbor_os",
             "miDebuggerPath": "rust-gdb",
+            "preLaunchTask": "start-debugging",
             "cwd": "${workspaceFolder}",
             "miDebuggerServerAddress": "localhost:1234",
             "MIMode": "gdb",

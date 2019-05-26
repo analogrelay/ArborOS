@@ -30,16 +30,9 @@
             ]
         },
         {
-            "type": "process",
+            "type": "shell",
             "label": "start-debugging",
-            "command": "bootimage",
-            "args": [
-                "run",
-                "--",
-                "-s",
-                "-S"
-            ],
-            "isBackground": true,
+            "command": "${workspaceFolder}/scripts/start-qemu-for-debugging-in-vscode.sh",
             "problemMatcher": [
                 "$rustc"
             ]
