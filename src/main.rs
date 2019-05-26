@@ -20,8 +20,11 @@ pub extern "C" fn _start() -> ! {
     // Initialize the core OS
     arbor_os::init();
 
-    // Trigger a breakpoint exception
-    x86_64::instructions::interrupts::int3();
+    // Trigger a stack overflow
+    fn stack_overflow() {
+        stack_overflow();
+    }
+    stack_overflow();
 
     // Launch test (when built as a test)
     #[cfg(test)]
