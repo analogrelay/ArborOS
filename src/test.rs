@@ -3,7 +3,7 @@ use core::panic::PanicInfo;
 #[cfg(test)]
 use bootloader::{entry_point, BootInfo};
 
-use crate::{qemu, serial_println};
+use crate::{devices::qemu, serial_println};
 
 pub fn test_runner(tests: &[&dyn Fn()]) {
     serial_println!("Running {} tests", tests.len());
@@ -28,7 +28,7 @@ pub fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
 
     crate::init();
     crate::test_main();
-    cpu::halt();
+    arch::CPU.halt();
 }
 
 #[cfg(test)]

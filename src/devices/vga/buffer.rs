@@ -2,7 +2,7 @@ use core::ops;
 
 use volatile::Volatile;
 
-use crate::vga::{ScreenChar, BUFFER_HEIGHT, BUFFER_WIDTH};
+use super::{ScreenChar, BUFFER_HEIGHT, BUFFER_WIDTH};
 
 pub struct Buffer {
     chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],

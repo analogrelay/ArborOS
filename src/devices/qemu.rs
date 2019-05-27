@@ -1,4 +1,4 @@
-use crate::cpu;
+use crate::arch::{self, Cpu};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
@@ -16,5 +16,5 @@ pub fn exit(exit_code: ExitCode) -> ! {
     }
 
     // Should never get here.
-    cpu::halt()
+    arch::CPU.halt()
 }

@@ -11,11 +11,18 @@
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 
-use arbor_os::{cpu, memory, println};
+use arbor_os::{
+    arch::{self, Cpu}, 
+    devices::vga,
+    println
+};
+
+#[cfg(test)]
+use arbor_os::test;
 
 entry_point!(kernel_main);
 
-pub fn kernel_main(boot_info: &'static BootInfo) -> ! {
+pub fn kernel_main(_boot_info: &'static BootInfo) -> ! {
     println!("Hello world!");
 
     // Initialize the core OS
@@ -25,26 +32,26 @@ pub fn kernel_main(boot_info: &'static BootInfo) -> ! {
     #[cfg(test)]
     test_main();
 
-    cpu::halt()
+    arch::CPU.halt();
 }
 
 /// This function is called on panic in the real OS.
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    arbor_os::vga::WRITER
+    vga::WRITER
         .lock()
-        .set_fg(arbor_os::vga::Color::LightRed);
-    arbor_os::vga::WRITER
+        .set_fg(vga::Color::LightRed);
+    vga::WRITER
         .lock()
-        .set_bg(arbor_os::vga::Color::Black);
+        .set_bg(vga::Color::Black);
     println!("{}", info);
-    cpu::halt()
+    arch::CPU.halt();
 }
 
 /// This function is called on panic in tests.
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    arbor_os::test::test_panic_handler(info)
+    test::test_panic_handler(info)
 }

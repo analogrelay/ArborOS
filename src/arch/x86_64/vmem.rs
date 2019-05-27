@@ -1,25 +1,8 @@
 use x86_64::{
     VirtAddr, PhysAddr,
-    structures::paging::{Page, Size4KiB, Mapper, FrameAllocator, PageTable, PhysFrame, MapperAllSizes, MappedPageTable}
+    structures::paging::{Size4KiB, FrameAllocator, PageTable, PhysFrame, MapperAllSizes, MappedPageTable}
 };
 use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
-
-/// Creates an example mapping for the given page to frame `0xb8000`.
-pub fn create_example_mapping(
-    page: Page,
-    mapper: &mut impl Mapper<Size4KiB>,
-    frame_allocator: &mut impl FrameAllocator<Size4KiB>,
-) {
-    use x86_64::structures::paging::PageTableFlags as Flags;
-
-    let frame = PhysFrame::containing_address(PhysAddr::new(0xb8000));
-    let flags = Flags::PRESENT | Flags::WRITABLE;
-
-    let map_to_result = unsafe {
-        mapper.map_to(page, frame, flags, frame_allocator)
-    };
-    map_to_result.expect("map_to failed").flush();
-}
 
 /// Initialize a new MappedPageTable.
 ///
@@ -46,7 +29,7 @@ pub unsafe fn init(physical_memory_offset: u64) -> impl MapperAllSizes {
 unsafe fn active_level_4_table(physical_memory_offset: u64)
     -> &'static mut PageTable
 {
-    use x86_64::{registers::control::Cr3, VirtAddr};
+    use x86_64::{registers::control::Cr3};
 
     let (level_4_table_frame, _) = Cr3::read();
 
