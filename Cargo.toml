@@ -5,6 +5,13 @@ authors = ["Andrew Stanton-Nurse <andrew@andrewnurse.net>"]
 edition = "2018"
 publish = false
 
+[features]
+default = ["boot_bios"]
+
+# Boot features, controls how the output is generated.
+boot_uefi = []
+boot_bios = []
+
 [dependencies]
 bootloader = { version = "0.6.0", features = ["map_physical_memory"] }
 x86_64 = "0.6.0"

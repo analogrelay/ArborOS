@@ -7,8 +7,6 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(arbor_os::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
-
-use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 
 use arbor_os::{
