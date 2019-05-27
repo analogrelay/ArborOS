@@ -11,27 +11,47 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use arbor_os::println;
+use bootloader::{entry_point, BootInfo};
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+use arbor_os::{cpu, memory, println};
+
+entry_point!(kernel_main);
+
+pub fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("Hello world!");
 
     // Initialize the core OS
     arbor_os::init();
 
-    // Trigger a stack overflow
-    fn stack_overflow() {
-        stack_overflow();
+    use x86_64::VirtAddr;
+    use x86_64::structures::paging::MapperAllSizes;
+
+    // new: initialize a mapper
+    let mapper = unsafe { memory::init(boot_info.physical_memory_offset) };
+
+    let addresses = [
+        // the identity-mapped vga buffer page
+        0xb8000,
+        // some code page
+        0x20010a,
+        // some stack page
+        0x57ac_001f_fe48,
+        // virtual address mapped to physical address 0
+        boot_info.physical_memory_offset,
+    ];
+
+    for &address in &addresses {
+        let virt = VirtAddr::new(address);
+        // new: use the `mapper.translate_addr` method
+        let phys = mapper.translate_addr(virt);
+        println!("{:?} -> {:?}", virt, phys);
     }
-    stack_overflow();
 
     // Launch test (when built as a test)
     #[cfg(test)]
     test_main();
 
-    println!("It did not crash");
-    loop {}
+    cpu::halt()
 }
 
 /// This function is called on panic in the real OS.
@@ -41,7 +61,7 @@ fn panic(info: &PanicInfo) -> ! {
     arbor_os::vga::WRITER.lock().set_fg(arbor_os::vga::Color::LightRed);
     arbor_os::vga::WRITER.lock().set_bg(arbor_os::vga::Color::Black);
     println!("{}", info);
-    loop {}
+    cpu::halt()
 }
 
 /// This function is called on panic in tests.

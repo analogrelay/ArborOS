@@ -69,6 +69,8 @@ impl<'a> Iterator for Iter<'a> {
 
 #[cfg(test)]
 mod test {
+    use core::fmt::Write;
+
     use crate::{serial_print, serial_println, println, vga};
 
     #[test_case]
@@ -92,11 +94,18 @@ mod test {
         serial_print!("test_println_output... ");
 
         let s = "Some test string that fits on a single line";
-        println!("{}", s);
-        for (i, c) in s.chars().enumerate() {
-            let screen_char = vga::WRITER.lock().buffer.chars[vga::BUFFER_HEIGHT - 2][i].read();
-            assert_eq!(char::from(screen_char.ascii_character), c);
-        }
+
+        // Run with interrupts disabled so the timer doesn't mess with us.
+        crate::interrupts::without_interrupts(|| {
+            // Lock the writer, then make a newline before we start so that we can safely assert the entire line
+            // even if the timer ran first.
+            let mut writer = vga::WRITER.lock();
+            writeln!(writer, "\n{}", s).expect("writeln failed");
+            for (i, c) in s.chars().enumerate() {
+                let screen_char = writer.buffer.chars[vga::BUFFER_HEIGHT - 2][i].read();
+                assert_eq!(char::from(screen_char.ascii_character), c);
+            }
+        });
 
         serial_println!("[ok]");
     }

@@ -25,14 +25,12 @@ fn panic(info: &PanicInfo) -> ! {
 
     serial_println!("[ok]");
     qemu::exit(qemu::ExitCode::Success);
-    loop {}
 }
 
 fn fail(error: &str) -> ! {
     serial_println!("[failed]");
     serial_println!("{}", error);
     qemu::exit(qemu::ExitCode::Failure);
-    loop {}
 }
 
 fn check_location(info: &PanicInfo) {

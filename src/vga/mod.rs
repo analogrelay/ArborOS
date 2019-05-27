@@ -3,11 +3,13 @@ use core::fmt;
 use spin::Mutex;
 use lazy_static::lazy_static;
 
-use self::color::ColorCode;
-use self::buffer::Buffer;
+use crate::interrupts;
 
-pub use self::color::Color;
-pub use self::writer::Writer;
+use color::ColorCode;
+use buffer::Buffer;
+
+pub use color::Color;
+pub use writer::Writer;
 
 mod color;
 mod writer;
@@ -34,7 +36,7 @@ lazy_static! {
 
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::vga::print(format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::vga::_print(format_args!($($arg)*)));
 }
 
 #[macro_export]
@@ -44,7 +46,12 @@ macro_rules! println {
     ($fmt:expr, $($arg:tt)*) => ($crate::print!(concat!($fmt, "\n"), $($arg)*));
 }
 
-pub fn print(args: fmt::Arguments) {
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    WRITER.lock().write_fmt(args).unwrap();
+
+    // Disable interrupts while we run
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }

@@ -1,3 +1,5 @@
+use crate::cpu;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ExitCode {
@@ -5,11 +7,14 @@ pub enum ExitCode {
     Failure = 0x11,
 }
 
-pub fn exit(exit_code: ExitCode) {
+pub fn exit(exit_code: ExitCode) -> ! {
     use x86_64::instructions::port::Port;
 
     unsafe {
         let mut port = Port::new(0xf4);
         port.write(exit_code as u32);
     }
+
+    // Should never get here.
+    cpu::halt()
 }

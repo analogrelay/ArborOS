@@ -1,7 +1,9 @@
 use core::panic::PanicInfo;
 
-use crate::serial_println;
-use crate::qemu;
+#[cfg(test)]
+use bootloader::{entry_point, BootInfo};
+
+use crate::{qemu, serial_println};
 
 pub fn test_runner(tests: &[&dyn Fn()]) {
     serial_println!("Running {} tests", tests.len());
@@ -15,16 +17,18 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     qemu::exit(qemu::ExitCode::Failure);
-    loop {}
 }
 
-/// Entry point for `cargo xtest`
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(test_kernel_main);
+
+#[cfg(test)]
+pub fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+    use crate::cpu;
+
     crate::init();
     crate::test_main();
-    loop {}
+    cpu::halt();
 }
 
 #[cfg(test)]
