@@ -8,17 +8,13 @@ extern crate arbor_os;
 
 use core::panic::PanicInfo;
 
-use arbor_os::{serial_print, serial_println, println};
+use arbor_os::{println, serial_print, serial_println};
 
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
     test_main();
 
     loop {}
-}
-
-fn test_runner(tests: &[&dyn Fn()]) {
-    unimplemented!();
 }
 
 #[test_case]

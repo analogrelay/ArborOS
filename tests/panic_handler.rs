@@ -46,8 +46,7 @@ fn check_location(info: &PanicInfo) {
 fn check_message(info: &PanicInfo) {
     let message = info.message().unwrap_or_else(|| fail("no message"));
     let mut compare_message = CompareMessage { expected: MESSAGE };
-    write!(&mut compare_message, "{}", message)
-        .unwrap_or_else(|_| fail("write failed"));
+    write!(&mut compare_message, "{}", message).unwrap_or_else(|_| fail("write failed"));
     if !compare_message.expected.is_empty() {
         fail("message shorter than expected message");
     }

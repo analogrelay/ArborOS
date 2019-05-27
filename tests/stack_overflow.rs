@@ -7,7 +7,7 @@ use lazy_static::lazy_static;
 use x86_64::structures::idt::InterruptDescriptorTable;
 use x86_64::structures::idt::InterruptStackFrame;
 
-use arbor_os::{serial_print, serial_println, qemu};
+use arbor_os::{qemu, serial_print, serial_println};
 
 extern "x86-interrupt" fn test_double_fault_handler(
     _stack_frame: &mut InterruptStackFrame,

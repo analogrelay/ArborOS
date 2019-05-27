@@ -5,14 +5,14 @@
 #![test_runner(crate::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+pub mod cpu;
+pub mod gdt;
+pub mod interrupts;
+pub mod memory;
 pub mod qemu;
 pub mod serial;
-pub mod vga;
-pub mod interrupts;
 pub mod test;
-pub mod gdt;
-pub mod cpu;
-pub mod memory;
+pub mod vga;
 
 pub fn init() {
     gdt::init();
